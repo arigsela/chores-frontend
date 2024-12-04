@@ -1,19 +1,35 @@
-# Stage 1: Build the React app
-FROM node:18 AS build
+# Build stage
+FROM node:20-alpine as build
+
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files
 COPY package*.json ./
-RUN npm install
 
-# Copy the app and set the API base URL as a build argument
+# Install dependencies
+RUN npm ci
+
+# Copy source code
 COPY . .
-ARG REACT_APP_API_BASE_URL
-ENV REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL
+
+# Create environment file at build time
+RUN echo "VITE_API_URL=__API_URL_PLACEHOLDER__" > .env
+
+# Build the app
 RUN npm run build
 
-# Stage 2: Serve the React app
+# Runtime stage
 FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
-EXPOSE 80
+
+# Copy built assets from the correct Vite output directory
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy startup script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
