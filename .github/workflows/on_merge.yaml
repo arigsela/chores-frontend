@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout code
     - name: Checkout code
       uses: actions/checkout@v3
 
@@ -25,11 +24,15 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
+    - name: Debug Build Context
+      run: ls -al chores-frontend
+
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: chores-frontend
         IMAGE_TAG: ${{ github.sha }}
+      working-directory: chores-frontend
       run: |
         docker build \
         --build-arg REACT_APP_API_BASE_URL="http://chores-tracker.chores-tracker.svc.cluster.local:80" \        
