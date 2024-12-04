@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: build and deploy to ECR
 
 on:
   push:
