@@ -12,9 +12,6 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Create environment file at build time
-RUN echo "VITE_API_URL=__API_URL_PLACEHOLDER__" > .env
-
 # Build the app
 RUN npm run build
 
