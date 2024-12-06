@@ -63,3 +63,10 @@ export const completeChore = async (assignmentId) => {
   if (!res.ok) throw new Error('Failed to complete chore');
   return res.json();
 };
+
+export const deleteAssignment = async (assignmentId) => {
+  const res = await fetch(`${API_BASE_URL}/api/assignments/${assignmentId}`, {
+    method: 'DELETE'
+  });
+  if (!res.ok) throw new Error('Failed to delete assignment');
+};
