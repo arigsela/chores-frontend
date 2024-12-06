@@ -1,4 +1,4 @@
-const API_BASE_URL = '__API_URL_PLACEHOLDER__';  // This will be replaced at runtime
+const API_BASE_URL = import.meta.env.VITE_API_URL || '__API_URL_PLACEHOLDER__';
 
 export const fetchChildren = async () => {
   const res = await fetch(`${API_BASE_URL}/api/children/`);
@@ -25,6 +25,14 @@ export const addChild = async (childData) => {
     body: JSON.stringify(childData)
   });
   if (!res.ok) throw new Error('Failed to add child');
+  return res.json();
+};
+
+export const deleteChore = async (choreId) => {
+  const res = await fetch(`${API_BASE_URL}/api/chores/${choreId}`, {
+    method: 'DELETE'
+  });
+  if (!res.ok) throw new Error('Failed to delete chore');
   return res.json();
 };
 
