@@ -47,10 +47,10 @@ export const addChore = async (choreData) => {
 };
 
 export const assignChores = async (childId, choreIds, weekStart) => {
-  const res = await fetch(`${API_BASE_URL}/api/weekly-assignments/?child_id=${childId}&week_start=${weekStart}`, {
+  const res = await fetch(`${API_BASE_URL}/api/weekly-assignments/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(choreIds)
+    body: JSON.stringify({ child_id: childId, chore_ids: choreIds, week_start: weekStart })
   });
   if (!res.ok) throw new Error('Failed to assign chores');
   return res.json();
