@@ -1,9 +1,17 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import App from './App';
 import * as api from './services/api';
 
-jest.mock('./services/api');
+jest.mock('./services/api', () => ({
+  fetchChildren: jest.fn(),
+  fetchChores: jest.fn(),
+  fetchAssignmentsForWeek: jest.fn(),
+  addChild: jest.fn(),
+  addChore: jest.fn(),
+  deleteChore: jest.fn(),
+  deleteAssignment: jest.fn()
+}));
 
 describe('App Component', () => {
  beforeEach(() => {
@@ -16,6 +24,26 @@ describe('App Component', () => {
    render(<App />);
    expect(screen.getByRole('status')).toHaveTextContent('Loading...');
  });
+
+ it('should handle deleting an assignment', async () => {
+  const mockChild = { id: 1, name: 'Test Child' };
+  const mockAssignment = { id: 1, chore: { id: 1, name: 'Test Chore' }, is_completed: false };
+  
+  api.fetchChildren.mockResolvedValue([mockChild]);
+  api.fetchChores.mockResolvedValue([]);
+  api.fetchAssignmentsForWeek.mockResolvedValue([mockAssignment]);
+  
+  await act(async () => {
+    render(<App />);
+  });
+
+  const deleteButton = screen.getByRole('button', { name: /delete/i });
+  await act(async () => {
+    fireEvent.click(deleteButton);
+  });
+
+  expect(api.deleteAssignment).toHaveBeenCalledWith(mockAssignment.id);
+});
 
  it('should render main sections after loading', async () => {
   api.fetchChildren.mockResolvedValue([]);

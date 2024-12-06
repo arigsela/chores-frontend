@@ -124,6 +124,18 @@ const App = () => {
     }
   };
 
+  const handleDeleteAssignment = async (assignmentId, childId) => {
+    try {
+      await api.deleteAssignment(assignmentId);
+      setAssignments(prev => ({
+        ...prev,
+        [childId]: prev[childId].filter(a => a.id !== assignmentId)
+      }));
+    } catch (err) {
+      setError('Failed to delete assignment');
+    }
+  };
+
   const handleCompleteChore = async (assignmentId) => {
     try {
       const result = await api.completeChore(assignmentId);
@@ -198,7 +210,9 @@ const App = () => {
               setSelectedChores={setSelectedChores}
               onAssignChores={handleAssignChores}
               onCompleteChore={handleCompleteChore}
+              onDeleteAssignment={handleDeleteAssignment}
             />
+
           </div>
           
           {/* Chores Section */}
