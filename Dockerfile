@@ -12,14 +12,14 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Create environment file at build time
-RUN echo "VITE_API_URL=__API_URL_PLACEHOLDER__" > .env
-
 # Build the app
 RUN npm run build
 
 # Runtime stage
 FROM nginx:alpine
+
+# Install dos2unix
+RUN apk add --no-cache dos2unix
 
 # Copy built assets from the correct Vite output directory
 COPY --from=build /app/dist /usr/share/nginx/html
@@ -27,9 +27,10 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy startup script
+# Copy and prepare entrypoint script
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+RUN dos2unix /docker-entrypoint.sh && \
+    chmod +x /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]

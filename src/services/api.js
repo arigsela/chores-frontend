@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = '__API_URL_PLACEHOLDER__';  // This will be replaced at runtime
 
 export const fetchChildren = async () => {
   const res = await fetch(`${API_BASE_URL}/api/children/`);
