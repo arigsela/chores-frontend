@@ -143,8 +143,14 @@ const App = () => {
     }
   };
 
-  if (loading) return <div className="p-4 text-2xl text-white">Loading...</div>;
-  
+  if (loading) {
+    return (
+      <div className="bg-gray-900 min-h-screen">
+        <div role="status" className="p-4 text-2xl text-white">Loading...</div>
+      </div>
+    );
+  }
+
   if (error) {
     console.error('Application error:', error);
     return (

@@ -1,18 +1,20 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
-import { WeekSelector } from '../WeekSelector';
+import { ChoreList } from '../ChoreList';
 
-describe('WeekSelector', () => {
-  it('changes week when select value changes', () => {
-    const mockOnChange = jest.fn();
-    const currentDate = new Date('2024-01-01');
-    const { container } = render(
-      <WeekSelector selectedWeek={currentDate} onWeekChange={mockOnChange} />
-    );
-    
-    const select = container.querySelector('select');
-    fireEvent.change(select, { target: { value: '2024-01-08' }});
-    
-    expect(mockOnChange).toHaveBeenCalled();
+describe('ChoreList', () => {
+  const mockChores = [
+    { id: 1, name: 'Clean Room', description: 'Make bed, vacuum', points: 5 },
+    { id: 2, name: 'Do Dishes', description: 'Wash and dry dishes', points: 3 }
+  ];
+
+  it('renders correctly when empty', () => {
+    const { container } = render(<ChoreList chores={[]} onDeleteChore={() => {}} />);
+    expect(container.querySelector('.space-y-2')).toBeEmptyDOMElement();
+  });
+
+  it('displays chore points correctly', () => {
+    const { getByText } = render(<ChoreList chores={mockChores} onDeleteChore={() => {}} />);
+    expect(getByText('5 pts')).toBeInTheDocument();
   });
 });

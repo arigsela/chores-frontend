@@ -5,13 +5,13 @@ import { WeekSelector } from '../WeekSelector';
 describe('WeekSelector', () => {
   it('allows week selection', () => {
     const mockOnChange = jest.fn();
-    const currentDate = new Date('2024-01-01');
     const { container } = render(
-      <WeekSelector selectedWeek={currentDate} onWeekChange={mockOnChange} />
+      <WeekSelector selectedWeek="2024-01-01" onWeekChange={mockOnChange} />
     );
 
     const select = container.querySelector('select');
-    fireEvent.change(select, { target: { value: select.options[1].value } });
+    const targetDate = select.options[1].value;
+    fireEvent.change(select, { target: { value: targetDate } });
     expect(mockOnChange).toHaveBeenCalled();
   });
 });
