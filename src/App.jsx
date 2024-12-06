@@ -7,6 +7,7 @@ import { AddChoreForm, ChoreList } from './components/ChoreList';
 import { getCurrentWeekStart } from './utils/dateUtils';
 import * as api from './services/api';
 
+
 const App = () => {
   const [children, setChildren] = useState([]);
   const [chores, setChores] = useState([]);
@@ -71,6 +72,32 @@ const App = () => {
     }
   };
 
+  const deleteChore = async (choreId) => {
+    try {
+      await api.deleteChore(choreId);
+      setChores(chores.filter(chore => chore.id !== choreId));
+      
+      // Update assignments and selected chores
+      const newAssignments = { ...assignments };
+      Object.keys(newAssignments).forEach(childId => {
+        newAssignments[childId] = newAssignments[childId].filter(
+          assignment => assignment.chore.id !== choreId
+        );
+      });
+      setAssignments(newAssignments);
+      
+      setSelectedChores(prev => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach(childId => {
+          updated[childId] = updated[childId].filter(id => id !== choreId);
+        });
+        return updated;
+      });
+    } catch (err) {
+      setError('Failed to delete chore. Please try again.');
+    }
+  };
+  
   const handleAssignChores = async (childId) => {
     const choresToAssign = selectedChores[childId] || [];
     if (choresToAssign.length === 0) {
@@ -178,7 +205,7 @@ const App = () => {
               onSubmit={handleAddChore}
             />
             
-            <ChoreList chores={chores} />
+            <ChoreList chores={chores} onDeleteChore={deleteChore} />
           </div>
         </div>
       </div>

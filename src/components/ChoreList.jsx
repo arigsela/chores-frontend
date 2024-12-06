@@ -34,16 +34,25 @@ export const AddChoreForm = ({ newChore, setNewChore, onSubmit }) => (
   </form>
 );
 
-export const ChoreList = ({ chores }) => (
+
+export const ChoreList = ({ chores, onDeleteChore }) => (
   <div className="space-y-2">
     {chores.map(chore => (
-      <div key={chore.id} className="p-3 border border-gray-700 rounded bg-gray-800">
+      <div key={chore.id} className="p-3 border border-gray-700 rounded">
         <div className="flex justify-between items-center">
           <div>
             <div className="font-medium text-white">{chore.name}</div>
             <div className="text-sm text-gray-400">{chore.description}</div>
           </div>
-          <span className="text-blue-400">{chore.points} pts</span>
+          <div className="flex items-center gap-4">
+            <span className="text-blue-400">{chore.points} pts</span>
+            <button 
+              onClick={() => onDeleteChore(chore.id)}
+              className="text-red-500 hover:text-red-400"
+            >
+              Delete
+            </button>
+          </div>
         </div>
       </div>
     ))}
