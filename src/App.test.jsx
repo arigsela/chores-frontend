@@ -91,7 +91,7 @@ describe('App Component', () => {
  });
 
  it('should handle adding a new chore', async () => {
-  const mockChore = { id: 1, name: 'Test Chore', description: 'Test Description', points: 5 };
+  const mockChore = { id: 1, name: 'Test Chore', description: 'Test Description'};
   api.fetchChildren.mockResolvedValue([]);
   api.fetchChores.mockResolvedValue([]);
   api.fetchAssignmentsForWeek.mockResolvedValue([]);

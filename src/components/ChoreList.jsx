@@ -18,18 +18,9 @@ export const AddChoreForm = ({ newChore, setNewChore, onSubmit }) => (
         value={newChore.description}
         onChange={(e) => setNewChore({ ...newChore, description: e.target.value })}
       />
-      <div className="flex gap-2">
-        <input
-          type="number"
-          placeholder="Points"
-          className="w-24 p-2 bg-gray-700 border-gray-600 rounded text-white placeholder-gray-400"
-          value={newChore.points}
-          onChange={(e) => setNewChore({ ...newChore, points: parseInt(e.target.value) })}
-        />
-        <button type="submit" className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-          <PlusCircle className="h-5 w-5" />
-        </button>
-      </div>
+      <button type="submit" className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        <PlusCircle className="h-5 w-5" />
+      </button>
     </div>
   </form>
 );
@@ -45,7 +36,6 @@ export const ChoreList = ({ chores, onDeleteChore }) => (
             <div className="text-sm text-gray-400">{chore.description}</div>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-blue-400">{chore.points} pts</span>
             <button 
               onClick={() => onDeleteChore(chore.id)}
               className="text-red-500 hover:text-red-400"

@@ -59,7 +59,7 @@ export const ChildList = ({
          >
            {chores.map(chore => (
              <option key={chore.id} value={chore.id}>
-               {chore.name} ({chore.points} pts)
+               {chore.name}
              </option>
            ))}
          </select>
@@ -77,7 +77,6 @@ export const ChildList = ({
              <div className="flex items-center justify-between">
                <div>
                  <span className="text-white">{assignment.chore.name}</span>
-                 <span className="text-gray-400 ml-2">({assignment.chore.points} pts)</span>
                </div>
                <div className="flex space-x-2">
                  {!assignment.is_completed && (
