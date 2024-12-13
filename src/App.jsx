@@ -16,7 +16,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [selectedWeek, setSelectedWeek] = useState(getCurrentWeekStart);
   const [newChild, setNewChild] = useState({ name: '', weekly_allowance: 0 });
-  const [newChore, setNewChore] = useState({ name: '', description: '', points: 0 });
+  const [newChore, setNewChore] = useState({ name: '', description: ''});
   const [selectedChores, setSelectedChores] = useState({});
 
   useEffect(() => {
@@ -66,7 +66,7 @@ const App = () => {
     try {
       const chore = await api.addChore(newChore);
       setChores([...chores, chore]);
-      setNewChore({ name: '', description: '', points: 0 });
+      setNewChore({ name: '', description: ''});
     } catch (err) {
       setError('Failed to add chore. Please try again.');
     }
