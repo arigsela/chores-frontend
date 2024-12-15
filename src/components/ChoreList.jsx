@@ -1,30 +1,14 @@
 import React from 'react';
 import { PlusCircle } from 'lucide-react';
+import { ChoreForm } from './ChoreForm';
 
 export const AddChoreForm = ({ newChore, setNewChore, onSubmit }) => (
-  <form onSubmit={onSubmit} className="mb-4">
-    <div className="space-y-2">
-      <input
-        type="text"
-        placeholder="Chore name"
-        className="w-full p-2 bg-gray-700 border-gray-600 rounded text-white placeholder-gray-400"
-        value={newChore.name}
-        onChange={(e) => setNewChore({ ...newChore, name: e.target.value })}
-      />
-      <input
-        type="text"
-        placeholder="Description"
-        className="w-full p-2 bg-gray-700 border-gray-600 rounded text-white placeholder-gray-400"
-        value={newChore.description}
-        onChange={(e) => setNewChore({ ...newChore, description: e.target.value })}
-      />
-      <button type="submit" className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-        <PlusCircle className="h-5 w-5" />
-      </button>
-    </div>
-  </form>
+  <ChoreForm 
+    onSubmit={onSubmit}
+  />
 );
 
+// Rest of your ChoreList component stays the same...
 
 export const ChoreList = ({ chores, onDeleteChore }) => (
   <div className="space-y-2">
@@ -34,6 +18,11 @@ export const ChoreList = ({ chores, onDeleteChore }) => (
           <div>
             <div className="font-medium text-white">{chore.name}</div>
             <div className="text-sm text-gray-400">{chore.description}</div>
+            <div className="text-sm text-blue-400">
+              {chore.frequency_per_week > 1 
+                ? `${chore.frequency_per_week} times per week` 
+                : 'Once per week'}
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <button 

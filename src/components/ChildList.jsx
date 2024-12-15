@@ -1,4 +1,4 @@
-// ChildList.jsx
+// src/components/ChildList.jsx
 import React from 'react';
 import { PlusCircle, CheckCircle } from 'lucide-react';
 
@@ -59,7 +59,7 @@ export const ChildList = ({
          >
            {chores.map(chore => (
              <option key={chore.id} value={chore.id}>
-               {chore.name}
+               {chore.name} ({chore.frequency_per_week}x/week)
              </option>
            ))}
          </select>
@@ -76,7 +76,12 @@ export const ChildList = ({
            <div key={assignment.id} className="bg-gray-600 p-3 rounded-lg">
              <div className="flex items-center justify-between">
                <div>
-                 <span className="text-white">{assignment.chore.name}</span>
+                 <span className="text-white">
+                   {assignment.chore.name}
+                   <span className="text-xs text-gray-400 ml-2">
+                     (#{assignment.occurrence_number} of {assignment.chore.frequency_per_week})
+                   </span>
+                 </span>
                </div>
                <div className="flex space-x-2">
                  {!assignment.is_completed && (
