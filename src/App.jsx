@@ -4,11 +4,17 @@ import { Alert, AlertDescription } from './components/ui/alert';
 import { WeekSelector } from './components/WeekSelector';
 import { AddChildForm, ChildList } from './components/ChildList';
 import { AddChoreForm, ChoreList } from './components/ChoreList';
+import { LoginForm } from './components/Login';
+import UserManagement from './components/UserManagement';
 import { getCurrentWeekStart } from './utils/dateUtils';
 import * as api from './services/api';
 
-
 const App = () => {
+  const [auth, setAuth] = useState({
+    token: localStorage.getItem('token'),
+    isAdmin: false
+  });
+  const [currentPage, setCurrentPage] = useState('chores');
   const [children, setChildren] = useState([]);
   const [chores, setChores] = useState([]);
   const [assignments, setAssignments] = useState({});
@@ -20,7 +26,14 @@ const App = () => {
   const [selectedChores, setSelectedChores] = useState({});
 
   useEffect(() => {
+    if (auth.token) {
+      setAuth(prev => ({ ...prev, isAdmin: true }));
+    }
+  }, [auth.token]);
+
+  useEffect(() => {
     const fetchData = async () => {
+      if (!auth.token) return;
       try {
         setLoading(true);
         const [childrenData, choresData] = await Promise.all([
@@ -40,15 +53,19 @@ const App = () => {
         );
         setAssignments(assignmentsData);
       } catch (err) {
-        setError('Failed to load data. Please try again later.');
-        console.error('Error:', err);
+        if (err.message === 'Unauthorized') {
+          handleLogout();
+        } else {
+          setError('Failed to load data. Please try again later.');
+          console.error('Error:', err);
+        }
       } finally {
         setLoading(false);
       }
     };
     
     fetchData();
-  }, [selectedWeek]);
+  }, [selectedWeek, auth.token]);
 
   const handleAddChild = async (e) => {
     e.preventDefault();
@@ -75,7 +92,6 @@ const App = () => {
       await api.deleteChore(choreId);
       setChores(chores.filter(chore => chore.id !== choreId));
       
-      // Update assignments and selected chores
       const newAssignments = { ...assignments };
       Object.keys(newAssignments).forEach(childId => {
         newAssignments[childId] = newAssignments[childId].filter(
@@ -104,8 +120,7 @@ const App = () => {
     }
 
     try {
-      const newAssignments = await api.assignChores(childId, choresToAssign, selectedWeek);
-      
+      await api.assignChores(childId, choresToAssign, selectedWeek);
       const updatedAssignments = await api.fetchAssignmentsForWeek(childId, selectedWeek);
       setAssignments(prev => ({
         ...prev,
@@ -142,7 +157,7 @@ const App = () => {
       Object.keys(newAssignments).forEach(childId => {
         newAssignments[childId] = newAssignments[childId].map(assignment => 
           assignment.id === assignmentId 
-            ? { ...assignment, is_completed: true, completion_date: result.completed_date }
+            ? { ...assignment, is_completed: true, completion_date: result.completion_date }
             : assignment
         );
       });
@@ -153,6 +168,22 @@ const App = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setAuth({ token: null, isAdmin: false });
+    setChildren([]);
+    setChores([]);
+    setAssignments({});
+    setError(null);
+    setCurrentPage('chores');
+  };
+
+  if (!auth.token) {
+    return <LoginForm onLoginSuccess={(data) => {
+      setAuth({ token: data.access_token, isAdmin: true });
+    }} />;
+  }
+
   if (loading) {
     return (
       <div className="bg-gray-900 min-h-screen">
@@ -161,21 +192,36 @@ const App = () => {
     );
   }
 
-  if (error) {
-    console.error('Application error:', error);
-    return (
-      <div className="p-4">
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-  
   return (
     <div className="bg-gray-900 min-h-screen">
       <div className="max-w-6xl mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-8 text-white">Family Chores Tracker</h1>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-white">Family Chores Tracker</h1>
+            <div className="mt-2 space-x-4">
+              <button 
+                onClick={() => setCurrentPage('chores')}
+                className={`text-sm ${currentPage === 'chores' ? 'text-blue-400' : 'text-gray-400'} hover:text-blue-300`}
+              >
+                Chores
+              </button>
+              {auth.isAdmin && (
+                <button 
+                  onClick={() => setCurrentPage('users')}
+                  className={`text-sm ${currentPage === 'users' ? 'text-blue-400' : 'text-gray-400'} hover:text-blue-300`}
+                >
+                  Users
+                </button>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Logout
+          </button>
+        </div>
         
         {error && (
           <Alert variant="destructive" className="mb-4">
@@ -184,48 +230,56 @@ const App = () => {
           </Alert>
         )}
 
-        <WeekSelector 
-          selectedWeek={selectedWeek} 
-          onWeekChange={setSelectedWeek} 
-        />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Children Section */}
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-white">Children</h2>
-            
-            <AddChildForm
-              newChild={newChild}
-              setNewChild={setNewChild}
-              onSubmit={handleAddChild}
+        {currentPage === 'users' ? (
+          <UserManagement />
+        ) : (
+          <>
+            <WeekSelector 
+              selectedWeek={selectedWeek} 
+              onWeekChange={setSelectedWeek} 
             />
             
-            <ChildList
-              children={children}
-              assignments={assignments}
-              chores={chores}
-              selectedChores={selectedChores}
-              setSelectedChores={setSelectedChores}
-              onAssignChores={handleAssignChores}
-              onCompleteChore={handleCompleteChore}
-              onDeleteAssignment={handleDeleteAssignment}
-            />
-
-          </div>
-          
-          {/* Chores Section */}
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-white">Chores</h2>
-            
-            <AddChoreForm
-              newChore={newChore}
-              setNewChore={setNewChore}
-              onSubmit={handleAddChore}
-            />
-            
-            <ChoreList chores={chores} onDeleteChore={deleteChore} />
-          </div>
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Children Section */}
+              <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+                <h2 className="text-xl font-semibold mb-4 text-white">Children</h2>
+                
+                <AddChildForm
+                  newChild={newChild}
+                  setNewChild={setNewChild}
+                  onSubmit={handleAddChild}
+                />
+                
+                <ChildList
+                  children={children}
+                  assignments={assignments}
+                  chores={chores}
+                  selectedChores={selectedChores}
+                  setSelectedChores={setSelectedChores}
+                  onAssignChores={handleAssignChores}
+                  onCompleteChore={handleCompleteChore}
+                  onDeleteAssignment={handleDeleteAssignment}
+                />
+              </div>
+              
+              {/* Chores Section */}
+              <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
+                <h2 className="text-xl font-semibold mb-4 text-white">Chores</h2>
+                
+                <AddChoreForm
+                  newChore={newChore}
+                  setNewChore={setNewChore}
+                  onSubmit={handleAddChore}
+                />
+                
+                <ChoreList 
+                  chores={chores} 
+                  onDeleteChore={deleteChore} 
+                />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
